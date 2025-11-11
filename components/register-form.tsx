@@ -92,7 +92,7 @@ export function RegisterForm({
                   type="email"
                   aria-invalid={fieldState.invalid}
                   placeholder="jondoe@flowieai.com"
-                  autoComplete="off"
+                  autoComplete="email"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -112,7 +112,7 @@ export function RegisterForm({
                   type="password"
                   placeholder="********"
                   aria-invalid={fieldState.invalid}
-                  autoComplete="off"
+                  autoComplete="new-password"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

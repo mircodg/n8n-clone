@@ -91,7 +91,7 @@ export function LoginForm({
                   type="email"
                   aria-invalid={fieldState.invalid}
                   placeholder="jondoe@flowieai.com"
-                  autoComplete="off"
+                  autoComplete="email"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -111,7 +111,7 @@ export function LoginForm({
                   type="password"
                   placeholder="********"
                   aria-invalid={fieldState.invalid}
-                  autoComplete="off"
+                  autoComplete="current-password"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
