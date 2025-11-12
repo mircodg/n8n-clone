@@ -73,8 +73,8 @@ export function LoginForm({
                 <Image
                   src="/logov2.svg"
                   alt="Flowie AI"
-                  width={50}
-                  height={50}
+                  width={32}
+                  height={32}
                 />
               </div>
               <span className="sr-only">Flowie AI</span>
