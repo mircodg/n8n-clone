@@ -1,5 +1,5 @@
 "use client";
-import { GalleryVerticalEnd, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-
+import Image from "next/image";
 // Zod schema used for client-side validation
 const formSchema = z.object({
   email: z.email("Invalid email address"),
@@ -65,15 +65,20 @@ export function LoginForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
-            <a
-              href="#"
+            <Link
+              href="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex size-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+                <Image
+                  src="/logov2.svg"
+                  alt="Flowie AI"
+                  width={32}
+                  height={32}
+                />
               </div>
               <span className="sr-only">Flowie AI</span>
-            </a>
+            </Link>
             <h1 className="text-xl font-bold">Welcome to Flowie AI.</h1>
             <FieldDescription>
               Don&apos;t have an account? <Link href="/register">Sign up</Link>
