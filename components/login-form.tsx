@@ -127,8 +127,7 @@ export function LoginForm({
           <Field>
             <Button type="submit" disabled={isPending}>
               {isPending ? (
-                <div className="flex items-center gap-2">
-                  <span>Logging in...</span>
+                <div className="flex items-center">
                   <LoaderCircle className="size-4 animate-spin" />
                 </div>
               ) : (

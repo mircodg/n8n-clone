@@ -129,8 +129,7 @@ export function RegisterForm({
           <Field>
             <Button type="submit" disabled={isPending}>
               {isPending ? (
-                <div className="flex items-center gap-2">
-                  <span>Registering...</span>
+                <div className="flex items-center">
                   <LoaderCircle className="size-4 animate-spin" />
                 </div>
               ) : (
