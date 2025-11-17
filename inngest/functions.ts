@@ -15,6 +15,11 @@ const execute = inngest.createFunction(
         system: "You are a helpful assistant.",
         prompt: "What is the capital of France?",
         model: openai("gpt-4.1-nano"),
+        experimental_telemetry: {
+          isEnabled: true,
+          recordInputs: true,
+          recordOutputs: true,
+        },
       }
     );
 
