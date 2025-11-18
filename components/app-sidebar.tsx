@@ -21,7 +21,6 @@ import {
   SidebarMenuItem,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarTrigger,
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 
