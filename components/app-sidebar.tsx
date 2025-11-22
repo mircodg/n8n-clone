@@ -114,7 +114,7 @@ export const AppSidebar = () => {
             <SidebarMenuButton
               className="gap-x-4 h-10 px-4 cursor-pointer"
               tooltip="Upgrade to Pro"
-              onClick={() => {}}
+              onClick={() => authClient.checkout({ slug: "Flowie-Pro" })}
             >
               <StarIcon className="size-4" />
               <span>Upgrade to Pro</span>
