@@ -26,6 +26,7 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useHasActiveSubscription } from "@/hooks/use-subscriptions";
 
 const menuItems = [
   {
@@ -53,6 +54,7 @@ const menuItems = [
 export const AppSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
   const signOut = async () => {
     await authClient.signOut({
@@ -110,21 +112,35 @@ export const AppSidebar = () => {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              className="gap-x-4 h-10 px-4 cursor-pointer"
-              tooltip="Upgrade to Pro"
-              onClick={() => {}}
-            >
-              <StarIcon className="size-4" />
-              <span>Upgrade to Pro</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {!hasActiveSubscription && !isLoading && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                className="gap-x-4 h-10 px-4 cursor-pointer"
+                tooltip="Upgrade to Pro"
+                onClick={async () => {
+                  try {
+                    await authClient.checkout({ slug: "Flowie-Pro" });
+                  } catch {
+                    toast.error("Failed to upgrade to Pro");
+                  }
+                }}
+              >
+                <StarIcon className="size-4" />
+                <span>Upgrade to Pro</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton
               className="gap-x-4 h-10 px-4 cursor-pointer"
               tooltip="Billing Portal"
-              onClick={() => {}}
+              onClick={async () => {
+                try {
+                  await authClient.customer.portal();
+                } catch {
+                  toast.error("Failed to open billing portal");
+                }
+              }}
             >
               <CreditCardIcon className="size-4" />
               <span>Billing Portal</span>

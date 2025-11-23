@@ -3,6 +3,8 @@ import { headers } from "next/headers";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { cache } from "react";
 import superjson from "superjson";
+import polarClient from "@/lib/polar";
+
 export const createTRPCContext = cache(async () => {
   /**
    * @see: https://trpc.io/docs/server/context
@@ -37,3 +39,34 @@ export const protectedProcedure = baseProcedure.use(async ({ next, ctx }) => {
     },
   });
 });
+
+export const premiumProcedure = protectedProcedure.use(
+  async ({ next, ctx }) => {
+    let customer;
+    try {
+      customer = await polarClient.customers.getStateExternal({
+        externalId: ctx.auth.user.id,
+      });
+    } catch {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get customer state",
+      });
+    }
+
+    if (!customer || customer.activeSubscriptions.length === 0) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message:
+          "An active premium subscription is required to access this feature",
+      });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        customer,
+      },
+    });
+  }
+);
