@@ -3,14 +3,12 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/drizzle/db";
 import * as schema from "@/drizzle/schema";
 
-import {
-  polar,
-  checkout,
-  portal,
-  usage,
-  webhooks,
-} from "@polar-sh/better-auth";
+import { polar, checkout, portal } from "@polar-sh/better-auth";
 import polarClient from "@/lib/polar";
+
+if (!process.env.POLAR_SUCCESS_URL) {
+  throw new Error("POLAR_SUCCESS_URL is not set");
+}
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
