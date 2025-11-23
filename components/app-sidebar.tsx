@@ -120,8 +120,8 @@ export const AppSidebar = () => {
                 onClick={async () => {
                   try {
                     await authClient.checkout({ slug: "Flowie-Pro" });
-                  } catch (error) {
-                    toast.error((error as Error).message);
+                  } catch {
+                    toast.error("Failed to upgrade to Pro");
                   }
                 }}
               >
@@ -134,7 +134,13 @@ export const AppSidebar = () => {
             <SidebarMenuButton
               className="gap-x-4 h-10 px-4 cursor-pointer"
               tooltip="Billing Portal"
-              onClick={() => authClient.customer.portal()}
+              onClick={async () => {
+                try {
+                  await authClient.customer.portal();
+                } catch {
+                  toast.error("Failed to open billing portal");
+                }
+              }}
             >
               <CreditCardIcon className="size-4" />
               <span>Billing Portal</span>
