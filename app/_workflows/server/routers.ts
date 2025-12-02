@@ -24,7 +24,7 @@ export const workflowRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().positive().optional().default(10),
-        offset: z.number().positive().optional().default(0),
+        offset: z.number().nonnegative().optional().default(0),
       })
     )
     .query(async ({ ctx, input }) => {

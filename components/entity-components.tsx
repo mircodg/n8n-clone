@@ -1,0 +1,71 @@
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import Link from "next/link";
+
+type EntityHeaderProps = {
+  title: string;
+  description?: string;
+  newButtonLabel: string;
+  disabled?: boolean;
+  isCreating?: boolean;
+} & (
+  | { onNew: () => void; newButtonHref?: never }
+  | { newButtonHref: string; onNew?: never }
+  | { onNew?: never; newButtonHref?: never }
+);
+
+export const EntityHeader = ({
+  title,
+  description,
+  newButtonLabel,
+  disabled,
+  isCreating,
+  onNew,
+  newButtonHref,
+}: EntityHeaderProps) => {
+  return (
+    <div className="flex flex-row items-center justify-between gap-x-4">
+      <div className="flex flex-col">
+        <h1 className="text-lg md:text-xl font-semibold">{title}</h1>
+        {description && (
+          <p className="text-xs text-muted-foreground md:text-sm">
+            {description}
+          </p>
+        )}
+      </div>
+      {onNew && !newButtonHref && (
+        <Button onClick={onNew} disabled={disabled || isCreating} size={"sm"}>
+          <PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
+          {newButtonLabel}
+        </Button>
+      )}
+      {newButtonHref && !onNew && (
+        <Button asChild size={"sm"}>
+          <Link href={newButtonHref} prefetch>
+            <PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+};
+
+interface EnityContainerProps {
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  search?: React.ReactNode;
+  pagination?: React.ReactNode;
+}
+
+export const EnityContainer = ({
+  children,
+  header,
+  search,
+  pagination,
+}: EnityContainerProps) => {
+  return (
+    <div className="p-4 md:px-10 md:py-6 h-full">
+      <div className="mx-auto max-w-scre">{header}</div>
+    </div>
+  );
+};
