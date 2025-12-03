@@ -1,18 +1,26 @@
 import { db } from "@/drizzle/db";
 import { workflow } from "@/drizzle/schema";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import {
+  createTRPCRouter,
+  premiumProcedure,
+  protectedProcedure,
+} from "@/trpc/init";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 export const workflowRouter = createTRPCRouter({
-  create: protectedProcedure.mutation(async ({ ctx }) => {
+  create: premiumProcedure.mutation(async ({ ctx }) => {
     try {
-      return await db.insert(workflow).values({
-        name: generateSlug(1, { format: "kebab" }),
-        userId: ctx.auth.user.id,
-      });
+      const [result] = await db
+        .insert(workflow)
+        .values({
+          name: generateSlug(2, { format: "kebab" }),
+          userId: ctx.auth.user.id,
+        })
+        .returning();
+      return result;
     } catch {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -46,7 +54,7 @@ export const workflowRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -70,7 +78,7 @@ export const workflowRouter = createTRPCRouter({
   remove: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -93,7 +101,7 @@ export const workflowRouter = createTRPCRouter({
   updateName: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
         name: z.string().min(1).max(255),
       })
     )
