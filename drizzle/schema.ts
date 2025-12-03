@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 // *** AUTHENTICATION ***
 export const user = pgTable("user", {
@@ -63,7 +63,9 @@ export const verification = pgTable("verification", {
 
 // *** BACKGROUND JOBS ***
 export const workflow = pgTable("workflow", {
-  id: serial("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   userId: text("user_id")
     .notNull()
