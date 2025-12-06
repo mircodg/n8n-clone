@@ -7,8 +7,9 @@ import {
 } from "@/trpc/init";
 import { generateSlug } from "random-word-slugs";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import { z } from "zod";
+import { pagination } from "@/config/constants";
 
 export const workflowRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
@@ -31,19 +32,55 @@ export const workflowRouter = createTRPCRouter({
   getMany: protectedProcedure
     .input(
       z.object({
-        limit: z.number().positive().optional().default(10),
-        offset: z.number().nonnegative().optional().default(0),
+        page: z.number().default(pagination.DEFAULT_PAGE),
+        pageSize: z
+          .number()
+          .min(pagination.MIN_PAGE_SIZE)
+          .max(pagination.MAX_PAGE_SIZE)
+          .default(pagination.DEFAULT_PAGE_SIZE),
+        search: z.string().default(""),
       })
     )
     .query(async ({ ctx, input }) => {
       try {
-        return await db
-          .select()
-          .from(workflow)
-          .where(eq(workflow.userId, ctx.auth.user.id))
-          .offset(input.offset)
-          .limit(input.limit ?? 10)
-          .orderBy(desc(workflow.createdAt));
+        const [items, totalCount] = await Promise.all([
+          db
+            .select()
+            .from(workflow)
+            .where(
+              and(
+                eq(workflow.userId, ctx.auth.user.id),
+                ilike(workflow.name, `%${input.search}%`)
+              )
+            )
+            .offset((input.page - 1) * input.pageSize)
+            .limit(input.pageSize)
+            .orderBy(desc(workflow.updatedAt)),
+          db
+            .select({ count: sql<number>`count(*)` })
+            .from(workflow)
+            .where(
+              and(
+                eq(workflow.userId, ctx.auth.user.id),
+                ilike(workflow.name, `%${input.search}%`)
+              )
+            ),
+        ]);
+
+        const totalPages = Math.ceil(totalCount[0].count / input.pageSize);
+
+        const hasNextPage = input.page < totalPages;
+        const hasPreviousPage = input.page > 1;
+
+        return {
+          items,
+          page: input.page,
+          pageSize: input.pageSize,
+          totalCount: totalCount[0].count,
+          totalPages,
+          hasNextPage,
+          hasPreviousPage,
+        };
       } catch {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
