@@ -8,6 +8,7 @@ import {
   EntityHeader,
   EntityPagination,
   EntitySearch,
+  LoadingView,
 } from "@/components/entity-components";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { useRouter } from "next/navigation";
@@ -97,4 +98,8 @@ export const WorkflowContainer = ({
       {children}
     </EnityContainer>
   );
+};
+
+export const WorkflowLoading = () => {
+  return <LoadingView entity="workflows" />;
 };

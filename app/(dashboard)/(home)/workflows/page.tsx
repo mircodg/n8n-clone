@@ -1,5 +1,6 @@
 import {
   WorkflowContainer,
+  WorkflowLoading,
   WorkflowsList,
 } from "@/app/_workflows/components/workflows";
 import { prefetchWorkflows } from "@/app/_workflows/server/prefetch";
@@ -23,7 +24,7 @@ async function WorkflowsPage({ searchParams }: WorkflowsPageProps) {
     <WorkflowContainer>
       <HydrateClient>
         <ErrorBoundary fallback={<p>Error</p>}>
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<WorkflowLoading />}>
             <WorkflowsList />
           </Suspense>
         </ErrorBoundary>
