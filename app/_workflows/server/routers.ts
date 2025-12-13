@@ -120,14 +120,24 @@ export const workflowRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        return await db
+        const [result] = await db
           .delete(workflow)
           .where(
             and(
               eq(workflow.id, input.id),
               eq(workflow.userId, ctx.auth.user.id)
             )
-          );
+          )
+          .returning();
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
+        }
+
+        return result;
       } catch {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
