@@ -80,19 +80,19 @@ export const EntityHeader = ({
   );
 };
 
-type EnityContainerProps = {
+type EntityContainerProps = {
   children: React.ReactNode;
   header?: React.ReactNode;
   search?: React.ReactNode;
   pagination?: React.ReactNode;
 };
 
-export const EnityContainer = ({
+export const EntityContainer = ({
   children,
   header,
   search,
   pagination,
-}: EnityContainerProps) => {
+}: EntityContainerProps) => {
   return (
     <div className="p-4 md:px-10 md:py-6 h-full">
       <div className="mx-auto max-w-7xl w-full flex flex-col gap-y-8 h-full">
@@ -265,7 +265,7 @@ export const EntityList = <T,>({
   );
 };
 
-interface EnityItemProps {
+interface EntityItemProps {
   href: string;
   title: string;
   subtitle?: React.ReactNode;
@@ -276,7 +276,7 @@ interface EnityItemProps {
   className?: string;
 }
 
-export const EnityItem = ({
+export const EntityItem = ({
   href,
   title,
   subtitle,
@@ -285,7 +285,7 @@ export const EnityItem = ({
   onRemove,
   isRemoving,
   className,
-}: EnityItemProps) => {
+}: EntityItemProps) => {
   const handleRemove = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();

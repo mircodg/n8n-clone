@@ -129,6 +129,14 @@ export const workflowRouter = createTRPCRouter({
             )
           )
           .returning();
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
+        }
+
         return result;
       } catch {
         throw new TRPCError({

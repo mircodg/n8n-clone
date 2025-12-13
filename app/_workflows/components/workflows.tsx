@@ -5,8 +5,8 @@ import {
 } from "@/app/_workflows/hooks/use-workflows";
 import {
   EmptyView,
-  EnityContainer,
-  EnityItem,
+  EntityContainer,
+  EntityItem,
   EntityHeader,
   EntityList,
   EntityPagination,
@@ -104,13 +104,13 @@ export const WorkflowContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <EnityContainer
+    <EntityContainer
       header={<WorkflowsHeader />}
       pagination={<WorkflowsPagination />}
       search={<WorkflowsSearch />}
     >
       {children}
-    </EnityContainer>
+    </EntityContainer>
   );
 };
 
@@ -157,7 +157,7 @@ export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
     removeWorkflow.mutate({ id: workflow.id });
   };
   return (
-    <EnityItem
+    <EntityItem
       href={`/workflows/${workflow.id}`}
       title={workflow.name}
       subtitle={
