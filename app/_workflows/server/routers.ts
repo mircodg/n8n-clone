@@ -96,7 +96,7 @@ export const workflowRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       try {
-        return await db
+        const [result] = await db
           .select()
           .from(workflow)
           .where(
@@ -105,6 +105,15 @@ export const workflowRouter = createTRPCRouter({
               eq(workflow.userId, ctx.auth.user.id)
             )
           );
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
+        }
+
+        return result;
       } catch {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -154,7 +163,7 @@ export const workflowRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        return await db
+        const [result] = await db
           .update(workflow)
           .set({ name: input.name })
           .where(
@@ -162,7 +171,17 @@ export const workflowRouter = createTRPCRouter({
               eq(workflow.id, input.id),
               eq(workflow.userId, ctx.auth.user.id)
             )
-          );
+          )
+          .returning();
+
+        if (!result) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workflow not found",
+          });
+        }
+
+        return result;
       } catch {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
