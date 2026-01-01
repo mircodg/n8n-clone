@@ -143,7 +143,7 @@ export const workflowRouter = createTRPCRouter({
           .from(connection)
           .where(eq(connection.workflowId, result.id));
 
-        // Trasform server connections to react-flow edges
+        // Transform server connections to react-flow edges
         const edges: Edge[] = dbConnections.map((connection) => ({
           id: connection.id,
           source: connection.fromNodeId,
