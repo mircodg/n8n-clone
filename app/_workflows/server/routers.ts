@@ -16,22 +16,24 @@ import { pagination } from "@/config/constants";
 export const workflowRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
     try {
-      const [workflowResult] = await db
-        .insert(workflow)
-        .values({
-          name: generateSlug(2, { format: "kebab" }),
-          userId: ctx.auth.user.id,
-        })
-        .returning();
+      return await db.transaction(async (tx) => {
+        const [workflowResult] = await tx
+          .insert(workflow)
+          .values({
+            name: generateSlug(2, { format: "kebab" }),
+            userId: ctx.auth.user.id,
+          })
+          .returning();
 
-      // Then, create the initial node
-      await db.insert(node).values({
-        name: NodeType.INITIAL,
-        type: NodeType.INITIAL,
-        position: { x: 0, y: 0 },
-        workflowId: workflowResult.id,
+        await tx.insert(node).values({
+          name: NodeType.INITIAL,
+          type: NodeType.INITIAL,
+          position: { x: 0, y: 0 },
+          workflowId: workflowResult.id,
+        });
+
+        return workflowResult;
       });
-      return workflowResult;
     } catch {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -157,7 +159,10 @@ export const workflowRouter = createTRPCRouter({
           nodes,
           edges,
         };
-      } catch {
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to get workflow",

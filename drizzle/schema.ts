@@ -7,7 +7,6 @@ import {
   json,
   unique,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 
 // *** AUTHENTICATION ***
 export const user = pgTable("user", {
