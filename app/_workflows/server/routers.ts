@@ -1,5 +1,7 @@
 import { db } from "@/drizzle/db";
-import { workflow } from "@/drizzle/schema";
+import { connection, node, workflow } from "@/drizzle/schema";
+import { NodeType } from "@/drizzle/schema";
+import type { Node, Edge } from "@xyflow/react";
 import {
   createTRPCRouter,
   premiumProcedure,
@@ -14,14 +16,22 @@ import { pagination } from "@/config/constants";
 export const workflowRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
     try {
-      const [result] = await db
+      const [workflowResult] = await db
         .insert(workflow)
         .values({
           name: generateSlug(2, { format: "kebab" }),
           userId: ctx.auth.user.id,
         })
         .returning();
-      return result;
+
+      await db.insert(node).values({
+        name: NodeType.INITIAL,
+        type: NodeType.INITIAL,
+        position: { x: 0, y: 0 },
+        workflowId: workflowResult.id,
+      });
+
+      return workflowResult;
     } catch {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -113,8 +123,44 @@ export const workflowRouter = createTRPCRouter({
           });
         }
 
-        return result;
-      } catch {
+        // Get all nodes for this workflow
+        const dbNodes = await db
+          .select()
+          .from(node)
+          .where(eq(node.workflowId, result.id));
+
+        // Transform server nodes to react-flow nodes
+        const nodes: Node[] = dbNodes.map((node) => ({
+          id: node.id,
+          type: node.type,
+          position: node.position as { x: number; y: number },
+          data: (node.data as Record<string, unknown>) || {},
+        }));
+
+        // Get all connections for this workflow
+        const dbConnections = await db
+          .select()
+          .from(connection)
+          .where(eq(connection.workflowId, result.id));
+
+        // Trasform server connections to react-flow edges
+        const edges: Edge[] = dbConnections.map((connection) => ({
+          id: connection.id,
+          source: connection.fromNodeId,
+          target: connection.toNodeId,
+          sourceHandle: connection.fromOutput,
+          targetHandle: connection.toInput,
+        }));
+
+        return {
+          ...result,
+          nodes,
+          edges,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to get workflow",

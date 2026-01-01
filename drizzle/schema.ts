@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  pgEnum,
+  json,
+  unique,
+} from "drizzle-orm/pg-core";
 
 // *** AUTHENTICATION ***
 export const user = pgTable("user", {
@@ -78,3 +86,61 @@ export const workflow = pgTable("workflow", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+// *** WORKFLOW NODES AND CONNECTIONS ***
+export const NodeType = {
+  INITIAL: "INITIAL",
+} as const;
+
+export const nodeTypeEnum = pgEnum("type", [NodeType.INITIAL]);
+
+export const node = pgTable("node", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  type: nodeTypeEnum("type").notNull(),
+  position: json("position").notNull(),
+  data: json("data").notNull().default({}),
+  workflowId: text("workflow_id")
+    .notNull()
+    .references(() => workflow.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const connection = pgTable(
+  "connection",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workflowId: text("workflow_id")
+      .notNull()
+      .references(() => workflow.id, { onDelete: "cascade" }),
+    fromNodeId: text("from_node_id")
+      .notNull()
+      .references(() => node.id, { onDelete: "cascade" }),
+    toNodeId: text("to_node_id")
+      .notNull()
+      .references(() => node.id, { onDelete: "cascade" }),
+    fromOutput: text("from_output").notNull().default("main"),
+    toInput: text("to_input").notNull().default("main"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (connection) => [
+    unique().on(
+      connection.fromNodeId,
+      connection.toNodeId,
+      connection.fromOutput,
+      connection.toInput
+    ),
+  ]
+);
