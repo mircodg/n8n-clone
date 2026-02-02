@@ -1,349 +1,349 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  AlertTriangleIcon,
-  Loader2,
-  MoreVerticalIcon,
-  PackageOpenIcon,
-  PlusIcon,
-  SearchIcon,
-  TrashIcon,
+	AlertTriangleIcon,
+	Loader2,
+	MoreVerticalIcon,
+	PackageOpenIcon,
+	PlusIcon,
+	SearchIcon,
+	TrashIcon,
 } from "lucide-react";
 import Link from "next/link";
 import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
 } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardTitle,
 } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 type EntityHeaderProps = {
-  title: string;
-  description?: string;
-  newButtonLabel: string;
-  disabled?: boolean;
-  isCreating?: boolean;
+	title: string;
+	description?: string;
+	newButtonLabel: string;
+	disabled?: boolean;
+	isCreating?: boolean;
 } & (
-  | { onNew: () => void; newButtonHref?: never }
-  | { newButtonHref: string; onNew?: never }
-  | { onNew?: never; newButtonHref?: never }
+	| { onNew: () => void; newButtonHref?: never }
+	| { newButtonHref: string; onNew?: never }
+	| { onNew?: never; newButtonHref?: never }
 );
 
 export const EntityHeader = ({
-  title,
-  description,
-  newButtonLabel,
-  disabled,
-  isCreating,
-  onNew,
-  newButtonHref,
+	title,
+	description,
+	newButtonLabel,
+	disabled,
+	isCreating,
+	onNew,
+	newButtonHref,
 }: EntityHeaderProps) => {
-  return (
-    <div className="flex flex-row items-center justify-between gap-x-4">
-      <div className="flex flex-col">
-        <h1 className="text-lg md:text-xl font-semibold">{title}</h1>
-        {description && (
-          <p className="text-xs text-muted-foreground md:text-sm">
-            {description}
-          </p>
-        )}
-      </div>
-      {onNew && !newButtonHref && (
-        <Button onClick={onNew} disabled={disabled || isCreating} size={"sm"}>
-          <PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
-          {newButtonLabel}
-        </Button>
-      )}
-      {newButtonHref && !onNew && (
-        <Button asChild size={"sm"}>
-          <Link href={newButtonHref} prefetch>
-            <PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
-          </Link>
-        </Button>
-      )}
-    </div>
-  );
+	return (
+		<div className="flex flex-row items-center justify-between gap-x-4">
+			<div className="flex flex-col">
+				<h1 className="text-lg md:text-xl font-semibold">{title}</h1>
+				{description && (
+					<p className="text-xs text-muted-foreground md:text-sm">
+						{description}
+					</p>
+				)}
+			</div>
+			{onNew && !newButtonHref && (
+				<Button onClick={onNew} disabled={disabled || isCreating} size={"sm"}>
+					<PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
+					{newButtonLabel}
+				</Button>
+			)}
+			{newButtonHref && !onNew && (
+				<Button asChild size={"sm"}>
+					<Link href={newButtonHref} prefetch>
+						<PlusIcon className="size-4">{newButtonLabel}</PlusIcon>
+					</Link>
+				</Button>
+			)}
+		</div>
+	);
 };
 
 type EntityContainerProps = {
-  children: React.ReactNode;
-  header?: React.ReactNode;
-  search?: React.ReactNode;
-  pagination?: React.ReactNode;
+	children: React.ReactNode;
+	header?: React.ReactNode;
+	search?: React.ReactNode;
+	pagination?: React.ReactNode;
 };
 
 export const EntityContainer = ({
-  children,
-  header,
-  search,
-  pagination,
+	children,
+	header,
+	search,
+	pagination,
 }: EntityContainerProps) => {
-  return (
-    <div className="p-4 md:px-10 md:py-6 h-full">
-      <div className="mx-auto max-w-7xl w-full flex flex-col gap-y-8 h-full">
-        {header}
-        <div className="flex flex-col gap-y-4 h-full">
-          {search}
-          {children}
-        </div>
-        {pagination}
-      </div>
-    </div>
-  );
+	return (
+		<div className="p-4 md:px-10 md:py-6 h-full">
+			<div className="mx-auto max-w-7xl w-full flex flex-col gap-y-8 h-full">
+				{header}
+				<div className="flex flex-col gap-y-4 h-full">
+					{search}
+					{children}
+				</div>
+				{pagination}
+			</div>
+		</div>
+	);
 };
 
 interface EntitySearchProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
+	value: string;
+	onChange: (value: string) => void;
+	placeholder?: string;
 }
 
 export const EntitySearch = ({
-  value,
-  onChange,
-  placeholder = "Search",
+	value,
+	onChange,
+	placeholder = "Search",
 }: EntitySearchProps) => {
-  return (
-    <div className="relative ml-auto">
-      <SearchIcon className="size-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-      <Input
-        className="max-w-[200px] bg-background shadow-none border-border pl-8"
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
-    </div>
-  );
+	return (
+		<div className="relative ml-auto">
+			<SearchIcon className="size-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+			<Input
+				className="max-w-[200px] bg-background shadow-none border-border pl-8"
+				type="text"
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder={placeholder}
+			/>
+		</div>
+	);
 };
 
 interface EntityPaginationProps {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  disabled?: boolean;
+	page: number;
+	totalPages: number;
+	onPageChange: (page: number) => void;
+	disabled?: boolean;
 }
 
 export const EntityPagination = ({
-  page,
-  totalPages,
-  onPageChange,
-  disabled,
+	page,
+	totalPages,
+	onPageChange,
+	disabled,
 }: EntityPaginationProps) => {
-  return (
-    <div className="flex items-center justify-between gap-x-2 w-full">
-      <div className="flex-1 text-sm text-muted-foreground">
-        Page {page} of {totalPages || 1}
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          disabled={disabled || page === 1}
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(Math.max(1, page - 1))}
-        >
-          Previous
-        </Button>
-        <Button
-          disabled={disabled || page === totalPages || totalPages === 0}
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  );
+	return (
+		<div className="flex items-center justify-between gap-x-2 w-full">
+			<div className="flex-1 text-sm text-muted-foreground">
+				Page {page} of {totalPages || 1}
+			</div>
+			<div className="flex items-center justify-end space-x-2 py-4">
+				<Button
+					disabled={disabled || page === 1}
+					variant="outline"
+					size="sm"
+					onClick={() => onPageChange(Math.max(1, page - 1))}
+				>
+					Previous
+				</Button>
+				<Button
+					disabled={disabled || page === totalPages || totalPages === 0}
+					variant="outline"
+					size="sm"
+					onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+				>
+					Next
+				</Button>
+			</div>
+		</div>
+	);
 };
 
 interface StateViewProps {
-  message?: string;
+	message?: string;
 }
 
 interface LoadingViewProps extends StateViewProps {
-  entity?: string;
+	entity?: string;
 }
 
 export const LoadingView = ({ message, entity }: LoadingViewProps) => {
-  return (
-    <div className="flex justify-center items-center h-full flex-1 flex-col gap-y-4">
-      <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      <p className="text-sm text-primary">
-        {message || `Loading ${entity || "entities"}...`}
-      </p>
-    </div>
-  );
+	return (
+		<div className="flex justify-center items-center h-full flex-1 flex-col gap-y-4">
+			<Loader2 className="size-6 animate-spin text-muted-foreground" />
+			<p className="text-sm text-primary">
+				{message || `Loading ${entity || "entities"}...`}
+			</p>
+		</div>
+	);
 };
 
 export const ErrorView = ({ message }: StateViewProps) => {
-  return (
-    <div className="flex justify-center items-center h-full flex-1 flex-col gap-y-4">
-      <AlertTriangleIcon className="size-6 text-muted-foreground" />
-      {!!message && <p className="text-sm text-primary">{message}</p>}
-    </div>
-  );
+	return (
+		<div className="flex justify-center items-center h-full flex-1 flex-col gap-y-4">
+			<AlertTriangleIcon className="size-6 text-muted-foreground" />
+			{!!message && <p className="text-sm text-primary">{message}</p>}
+		</div>
+	);
 };
 
 interface EmptyViewProps extends StateViewProps {
-  title: string;
-  onNewLabel: string;
-  onNew: () => void;
+	title: string;
+	onNewLabel: string;
+	onNew: () => void;
 }
 
 export const EmptyView = ({
-  message,
-  title,
-  onNewLabel,
-  onNew,
+	message,
+	title,
+	onNewLabel,
+	onNew,
 }: EmptyViewProps) => {
-  return (
-    <Empty className="border border-dashed bg-white">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <PackageOpenIcon />
-        </EmptyMedia>
-        <EmptyTitle>{title}</EmptyTitle>
-        {!!message && <EmptyDescription>{message}</EmptyDescription>}
-      </EmptyHeader>
-      {!!onNew && (
-        <EmptyContent>
-          <div className="flex gap-2">
-            <Button onClick={onNew}>{onNewLabel}</Button>
-          </div>
-        </EmptyContent>
-      )}
-    </Empty>
-  );
+	return (
+		<Empty className="border border-dashed bg-white">
+			<EmptyHeader>
+				<EmptyMedia variant="icon">
+					<PackageOpenIcon />
+				</EmptyMedia>
+				<EmptyTitle>{title}</EmptyTitle>
+				{!!message && <EmptyDescription>{message}</EmptyDescription>}
+			</EmptyHeader>
+			{!!onNew && (
+				<EmptyContent>
+					<div className="flex gap-2">
+						<Button onClick={onNew}>{onNewLabel}</Button>
+					</div>
+				</EmptyContent>
+			)}
+		</Empty>
+	);
 };
 
 interface EntityListProps<T> {
-  items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
-  getKey: (item: T, index: number) => string | number;
-  emptyView?: React.ReactNode;
-  className?: string;
+	items: T[];
+	renderItem: (item: T, index: number) => React.ReactNode;
+	getKey: (item: T, index: number) => string | number;
+	emptyView?: React.ReactNode;
+	className?: string;
 }
 
 export const EntityList = <T,>({
-  items,
-  renderItem,
-  getKey,
-  emptyView,
-  className,
+	items,
+	renderItem,
+	getKey,
+	emptyView,
+	className,
 }: EntityListProps<T>) => {
-  if (items.length === 0 && emptyView) {
-    return (
-      <div className="flex-1 flex justify-center items-center">
-        <div className="max-w-sm mx-auto">{emptyView}</div>
-      </div>
-    );
-  }
-  return (
-    <div className={cn("flex flex-col gap-y-4", className)}>
-      {items.map((item, index) => (
-        <div key={getKey ? getKey(item, index) : index}>
-          {renderItem(item, index)}
-        </div>
-      ))}
-    </div>
-  );
+	if (items.length === 0 && emptyView) {
+		return (
+			<div className="flex-1 flex justify-center items-center">
+				<div className="max-w-sm mx-auto">{emptyView}</div>
+			</div>
+		);
+	}
+	return (
+		<div className={cn("flex flex-col gap-y-4", className)}>
+			{items.map((item, index) => (
+				<div key={getKey ? getKey(item, index) : index}>
+					{renderItem(item, index)}
+				</div>
+			))}
+		</div>
+	);
 };
 
 interface EntityItemProps {
-  href: string;
-  title: string;
-  subtitle?: React.ReactNode;
-  image?: React.ReactNode;
-  actions?: React.ReactNode;
-  onRemove?: () => void | Promise<void>;
-  isRemoving?: boolean;
-  className?: string;
+	href: string;
+	title: string;
+	subtitle?: React.ReactNode;
+	image?: React.ReactNode;
+	actions?: React.ReactNode;
+	onRemove?: () => void | Promise<void>;
+	isRemoving?: boolean;
+	className?: string;
 }
 
 export const EntityItem = ({
-  href,
-  title,
-  subtitle,
-  image,
-  actions,
-  onRemove,
-  isRemoving,
-  className,
+	href,
+	title,
+	subtitle,
+	image,
+	actions,
+	onRemove,
+	isRemoving,
+	className,
 }: EntityItemProps) => {
-  const handleRemove = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isRemoving) return;
-    if (onRemove) {
-      await onRemove();
-    }
-  };
-  return (
-    <Link href={href} prefetch>
-      <Card
-        className={cn(
-          "p-4 shadow-none hover:shadow cursor-pointer",
-          isRemoving && "opacity-50 cursor-not-allowed",
-          className
-        )}
-      >
-        <CardContent className="flex items-center justify-between p-0">
-          <div className="flex items-center gap-3">
-            {image}
-            <div>
-              <CardTitle className="text-base font-medium">{title}</CardTitle>
-              {!!subtitle && (
-                <CardDescription className="text-xs">
-                  {subtitle}
-                </CardDescription>
-              )}
-            </div>
-          </div>
-          {(actions || onRemove) && (
-            <div className="flex gap-x-4 items-center">
-              {actions}
-              {!!onRemove && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVerticalIcon className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenuItem onClick={handleRemove}>
-                      <TrashIcon className="size-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </Link>
-  );
+	const handleRemove = async (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (isRemoving) return;
+		if (onRemove) {
+			await onRemove();
+		}
+	};
+	return (
+		<Link href={href} prefetch>
+			<Card
+				className={cn(
+					"p-4 shadow-none hover:shadow cursor-pointer",
+					isRemoving && "opacity-50 cursor-not-allowed",
+					className,
+				)}
+			>
+				<CardContent className="flex items-center justify-between p-0">
+					<div className="flex items-center gap-3">
+						{image}
+						<div>
+							<CardTitle className="text-base font-medium">{title}</CardTitle>
+							{!!subtitle && (
+								<CardDescription className="text-xs">
+									{subtitle}
+								</CardDescription>
+							)}
+						</div>
+					</div>
+					{(actions || onRemove) && (
+						<div className="flex gap-x-4 items-center">
+							{actions}
+							{!!onRemove && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<MoreVerticalIcon className="size-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										align="end"
+										onClick={(e) => e.stopPropagation()}
+									>
+										<DropdownMenuItem onClick={handleRemove}>
+											<TrashIcon className="size-4" />
+											Delete
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
+						</div>
+					)}
+				</CardContent>
+			</Card>
+		</Link>
+	);
 };
