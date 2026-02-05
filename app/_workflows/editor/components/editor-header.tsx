@@ -1,5 +1,6 @@
 "use client";
 
+import { useAtomValue } from "jotai";
 import { SaveIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -15,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
 	useSuspenseWorkflow,
+	useUpdateWorkflow,
 	useUpdateWorkflowName,
 } from "../../hooks/use-workflows";
+import { editorAtom } from "../store/atoms";
 
 export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
-	const { data: workflow } = useSuspenseWorkflow(workflowId);
+	// const { data: workflow } = useSuspenseWorkflow(workflowId);
 
 	return (
 		<header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
@@ -51,9 +54,21 @@ export const EditorBreadcrumb = ({ workflowId }: { workflowId: string }) => {
 };
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
+	const editor = useAtomValue(editorAtom);
+	const saveWorkflow = useUpdateWorkflow();
+
+	const handleSave = async () => {
+		if (!editor) return;
+		await saveWorkflow.mutateAsync({
+			id: workflowId,
+			nodes: editor.getNodes(),
+			edges: editor.getEdges(),
+		});
+	};
+
 	return (
 		<div className="ml-auto">
-			<Button size="sm" onClick={() => {}} disabled={false}>
+			<Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
 				<SaveIcon className="size-4" />
 				Save
 			</Button>

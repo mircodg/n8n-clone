@@ -1,13 +1,13 @@
 "use client";
 
 import type { NodeProps } from "@xyflow/react";
-import { Position } from "@xyflow/react";
+import { Position, useReactFlow } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
-import { memo } from "react";
 import type { ReactNode } from "react";
-import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
+import { memo } from "react";
 import { BaseHandle } from "@/components/react-flow/base-handle";
+import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
 import { WorkflowNode } from "@/components/workflow-node";
 
 interface BaseTriggerNodeProps extends NodeProps {
@@ -27,21 +27,32 @@ export const BaseTriggerNode = memo(
 		children,
 		onSettings,
 		onDoubleClick,
+		id,
 	}: BaseTriggerNodeProps) => {
-		const onDelete = () => {};
+		const { setNodes, setEdges } = useReactFlow();
+		const handleDelete = () => {
+			setNodes((currentNodes) => {
+				return currentNodes.filter((node) => node.id !== id);
+			});
+			setEdges((currentEdges) => {
+				return currentEdges.filter(
+					(edge) => edge.source !== id && edge.target !== id,
+				);
+			});
+		};
 		return (
 			<WorkflowNode
 				name={name}
 				description={description}
 				onSettings={onSettings}
-				onDelete={onDelete}
+				onDelete={handleDelete}
 			>
 				<BaseNode
 					onDoubleClick={onDoubleClick}
 					className="relative rounded-l-2xl group"
 				>
 					<BaseNodeContent>
-						{typeof Icon == "string" ? (
+						{typeof Icon === "string" ? (
 							<Image src={Icon} alt={name} width={20} height={20} />
 						) : (
 							<Icon className="size-4 text-muted-foreground" />
