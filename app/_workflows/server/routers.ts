@@ -1,17 +1,16 @@
+import { TRPCError } from "@trpc/server";
+import type { Edge, Node } from "@xyflow/react";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { generateSlug } from "random-word-slugs";
+import { z } from "zod";
+import { pagination } from "@/config/constants";
 import { db } from "@/drizzle/db";
-import { connection, node, workflow } from "@/drizzle/schema";
-import { NodeType } from "@/drizzle/schema";
-import type { Node, Edge } from "@xyflow/react";
+import { connection, NodeType, node, workflow } from "@/drizzle/schema";
 import {
 	createTRPCRouter,
 	premiumProcedure,
 	protectedProcedure,
 } from "@/trpc/init";
-import { generateSlug } from "random-word-slugs";
-import { TRPCError } from "@trpc/server";
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
-import { z } from "zod";
-import { pagination } from "@/config/constants";
 
 export const workflowRouter = createTRPCRouter({
 	create: premiumProcedure.mutation(async ({ ctx }) => {
@@ -199,6 +198,73 @@ export const workflowRouter = createTRPCRouter({
 					message: "Failed to remove workflow",
 				});
 			}
+		}),
+	update: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				nodes: z.array(
+					z.object({
+						id: z.string(),
+						type: z.string().nullish(),
+						position: z.object({ x: z.number(), y: z.number() }),
+						data: z.record(z.string(), z.any()).optional(),
+					}),
+				),
+				edges: z.array(
+					z.object({
+						source: z.string(),
+						target: z.string(),
+						sourceHandle: z.string().nullish(),
+						targetHandle: z.string().nullish(),
+					}),
+				),
+			}),
+		)
+		.mutation(async ({ input }) => {
+			const { id, nodes, edges } = input;
+
+			await db.select().from(workflow).where(eq(workflow.id, id));
+
+			// delete all nodes and connections for this workflow
+			await db.delete(connection).where(eq(connection.workflowId, id));
+			await db.delete(node).where(eq(node.workflowId, id));
+
+			// insert new nodes with their original IDs
+			if (nodes.length > 0) {
+				await db.insert(node).values(
+					nodes.map((n) => ({
+						id: n.id,
+						name: n.type || "unknown",
+						type: n.type as (typeof NodeType)[keyof typeof NodeType],
+						position: n.position,
+						data: n.data || {},
+						workflowId: id,
+					})),
+				);
+			}
+
+			// create connections
+			if (edges.length > 0) {
+				await db.insert(connection).values(
+					edges.map((edge) => ({
+						workflowId: id,
+						fromNodeId: edge.source,
+						toNodeId: edge.target,
+						fromOutput: edge.sourceHandle || "main",
+						toInput: edge.targetHandle || "main",
+					})),
+				);
+			}
+
+			// update workflow updatedAt
+			const [result] = await db
+				.update(workflow)
+				.set({ updatedAt: new Date() })
+				.where(eq(workflow.id, id))
+				.returning();
+
+			return result;
 		}),
 	updateName: protectedProcedure
 		.input(
