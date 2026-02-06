@@ -81,5 +81,3 @@ export const EditorLoading = () => {
 export const EditorError = () => {
 	return <ErrorView message="Error loading editor" />;
 };
-
-/** 11:08:26 **/

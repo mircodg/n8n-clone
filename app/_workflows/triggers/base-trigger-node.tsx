@@ -8,6 +8,10 @@ import type { ReactNode } from "react";
 import { memo } from "react";
 import { BaseHandle } from "@/components/react-flow/base-handle";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
+import {
+	type NodeStatus,
+	NodeStatusIndicator,
+} from "@/components/react-flow/node-status-indicator";
 import { WorkflowNode } from "@/components/workflow-node";
 
 interface BaseTriggerNodeProps extends NodeProps {
@@ -17,6 +21,7 @@ interface BaseTriggerNodeProps extends NodeProps {
 	children?: ReactNode;
 	onSettings?: () => void;
 	onDoubleClick?: () => void;
+	status?: NodeStatus;
 }
 
 export const BaseTriggerNode = memo(
@@ -28,6 +33,7 @@ export const BaseTriggerNode = memo(
 		onSettings,
 		onDoubleClick,
 		id,
+		status = "initial",
 	}: BaseTriggerNodeProps) => {
 		const { setNodes, setEdges } = useReactFlow();
 		const handleDelete = () => {
@@ -47,20 +53,31 @@ export const BaseTriggerNode = memo(
 				onSettings={onSettings}
 				onDelete={handleDelete}
 			>
-				<BaseNode
-					onDoubleClick={onDoubleClick}
-					className="relative rounded-l-2xl group"
+				<NodeStatusIndicator
+					status={status}
+					variant="border"
+					className="rounded-l-2xl"
 				>
-					<BaseNodeContent>
-						{typeof Icon === "string" ? (
-							<Image src={Icon} alt={name} width={20} height={20} />
-						) : (
-							<Icon className="size-4 text-muted-foreground" />
-						)}
-						{children}
-						<BaseHandle id="source-1" type="source" position={Position.Right} />
-					</BaseNodeContent>
-				</BaseNode>
+					<BaseNode
+						onDoubleClick={onDoubleClick}
+						className="relative rounded-l-2xl group"
+						status={status}
+					>
+						<BaseNodeContent>
+							{typeof Icon === "string" ? (
+								<Image src={Icon} alt={name} width={20} height={20} />
+							) : (
+								<Icon className="size-4 text-muted-foreground" />
+							)}
+							{children}
+							<BaseHandle
+								id="source-1"
+								type="source"
+								position={Position.Right}
+							/>
+						</BaseNodeContent>
+					</BaseNode>
+				</NodeStatusIndicator>
 			</WorkflowNode>
 		);
 	},
