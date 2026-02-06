@@ -22,8 +22,6 @@ import {
 import { editorAtom } from "../store/atoms";
 
 export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
-	// const { data: workflow } = useSuspenseWorkflow(workflowId);
-
 	return (
 		<header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
 			<SidebarTrigger />
