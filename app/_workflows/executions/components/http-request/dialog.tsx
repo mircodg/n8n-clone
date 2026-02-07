@@ -37,30 +37,28 @@ const httpRequestSchema = z.object({
 	body: z.string().optional(),
 });
 
-export type HttpRequestFormType = z.infer<typeof httpRequestSchema>;
+export type HttpRequestFormValues = z.infer<typeof httpRequestSchema>;
 
 interface HttpRequestDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSubmit: (values: z.infer<typeof httpRequestSchema>) => void;
-	defaultEndpoint?: string;
-	defaultMethod?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-	defaultBody?: string;
+	defaultValues?: Partial<HttpRequestFormValues>;
 }
 
 export const HttpRequestDialog = ({
 	open,
 	onOpenChange,
 	onSubmit,
-	defaultEndpoint = "",
-	defaultMethod = "GET",
-	defaultBody = "",
+	defaultValues = {
+		endpoint: "",
+		method: "GET",
+		body: "",
+	},
 }: HttpRequestDialogProps) => {
 	const form = useForm<z.infer<typeof httpRequestSchema>>({
 		defaultValues: {
-			endpoint: defaultEndpoint,
-			method: defaultMethod,
-			body: defaultBody,
+			...defaultValues,
 		},
 		resolver: zodResolver(httpRequestSchema),
 	});
@@ -68,12 +66,10 @@ export const HttpRequestDialog = ({
 	useEffect(() => {
 		if (open) {
 			form.reset({
-				endpoint: defaultEndpoint,
-				method: defaultMethod,
-				body: defaultBody,
+				...defaultValues,
 			});
 		}
-	}, [open, defaultEndpoint, defaultMethod, defaultBody, form]);
+	}, [open, defaultValues, form]);
 
 	const watchMethod = form.watch("method");
 	const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);

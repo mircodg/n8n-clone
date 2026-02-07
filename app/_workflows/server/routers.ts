@@ -6,6 +6,7 @@ import { z } from "zod";
 import { pagination } from "@/config/constants";
 import { db } from "@/drizzle/db";
 import { connection, NodeType, node, workflow } from "@/drizzle/schema";
+import { inngest } from "@/inngest/client";
 import {
 	createTRPCRouter,
 	premiumProcedure,
@@ -13,6 +14,33 @@ import {
 } from "@/trpc/init";
 
 export const workflowRouter = createTRPCRouter({
+	execute: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			}),
+		)
+		.mutation(async ({ input }) => {
+			const result = await db.query.workflow.findFirst({
+				where: eq(workflow.id, input.id),
+			});
+
+			if (!result) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Workflow not found",
+				});
+			}
+
+			await inngest.send({
+				name: "workflows/execute.workflow",
+				data: {
+					workflowId: result.id,
+				},
+			});
+
+			return result;
+		}),
 	create: premiumProcedure.mutation(async ({ ctx }) => {
 		try {
 			const [workflowResult] = await db
@@ -52,28 +80,22 @@ export const workflowRouter = createTRPCRouter({
 		)
 		.query(async ({ ctx, input }) => {
 			try {
+				const where = and(
+					eq(workflow.userId, ctx.auth.user.id),
+					ilike(workflow.name, `%${input.search}%`),
+				);
+
 				const [items, totalCount] = await Promise.all([
-					db
-						.select()
-						.from(workflow)
-						.where(
-							and(
-								eq(workflow.userId, ctx.auth.user.id),
-								ilike(workflow.name, `%${input.search}%`),
-							),
-						)
-						.offset((input.page - 1) * input.pageSize)
-						.limit(input.pageSize)
-						.orderBy(desc(workflow.updatedAt)),
+					db.query.workflow.findMany({
+						where,
+						offset: (input.page - 1) * input.pageSize,
+						limit: input.pageSize,
+						orderBy: desc(workflow.updatedAt),
+					}),
 					db
 						.select({ count: sql<number>`count(*)` })
 						.from(workflow)
-						.where(
-							and(
-								eq(workflow.userId, ctx.auth.user.id),
-								ilike(workflow.name, `%${input.search}%`),
-							),
-						),
+						.where(where),
 				]);
 
 				const totalPages = Math.ceil(totalCount[0].count / input.pageSize);
@@ -105,15 +127,16 @@ export const workflowRouter = createTRPCRouter({
 		)
 		.query(async ({ ctx, input }) => {
 			try {
-				const [result] = await db
-					.select()
-					.from(workflow)
-					.where(
-						and(
-							eq(workflow.id, input.id),
-							eq(workflow.userId, ctx.auth.user.id),
-						),
-					);
+				const result = await db.query.workflow.findFirst({
+					where: and(
+						eq(workflow.id, input.id),
+						eq(workflow.userId, ctx.auth.user.id),
+					),
+					with: {
+						nodes: true,
+						connections: true,
+					},
+				});
 
 				if (!result) {
 					throw new TRPCError({
@@ -122,33 +145,20 @@ export const workflowRouter = createTRPCRouter({
 					});
 				}
 
-				// Get all nodes for this workflow
-				const dbNodes = await db
-					.select()
-					.from(node)
-					.where(eq(node.workflowId, result.id));
-
-				// Transform server nodes to react-flow nodes
-				const nodes: Node[] = dbNodes.map((node) => ({
-					id: node.id,
-					type: node.type,
-					position: node.position as { x: number; y: number },
-					data: (node.data as Record<string, unknown>) || {},
+				// Transform to react-flow format
+				const nodes: Node[] = result.nodes.map((n) => ({
+					id: n.id,
+					type: n.type,
+					position: n.position as { x: number; y: number },
+					data: (n.data as Record<string, unknown>) || {},
 				}));
 
-				// Get all connections for this workflow
-				const dbConnections = await db
-					.select()
-					.from(connection)
-					.where(eq(connection.workflowId, result.id));
-
-				// Transform server connections to react-flow edges
-				const edges: Edge[] = dbConnections.map((connection) => ({
-					id: connection.id,
-					source: connection.fromNodeId,
-					target: connection.toNodeId,
-					sourceHandle: connection.fromOutput,
-					targetHandle: connection.toInput,
+				const edges: Edge[] = result.connections.map((c) => ({
+					id: c.id,
+					source: c.fromNodeId,
+					target: c.toNodeId,
+					sourceHandle: c.fromOutput,
+					targetHandle: c.toInput,
 				}));
 
 				return {
@@ -224,7 +234,7 @@ export const workflowRouter = createTRPCRouter({
 		.mutation(async ({ input }) => {
 			const { id, nodes, edges } = input;
 
-			await db.select().from(workflow).where(eq(workflow.id, id));
+			await db.query.workflow.findFirst({ where: eq(workflow.id, id) });
 
 			// delete all nodes and connections for this workflow
 			await db.delete(connection).where(eq(connection.workflowId, id));
