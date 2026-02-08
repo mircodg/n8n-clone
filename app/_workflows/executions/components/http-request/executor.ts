@@ -45,6 +45,4 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 	});
 
 	return result;
-
-	// 54:13
 };
