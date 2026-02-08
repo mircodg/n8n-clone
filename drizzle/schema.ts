@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
 	boolean,
 	json,
@@ -118,6 +119,8 @@ export const node = pgTable("node", {
 		.notNull(),
 });
 
+export type Node = typeof node.$inferSelect;
+
 export const connection = pgTable(
 	"connection",
 	{
@@ -150,3 +153,29 @@ export const connection = pgTable(
 		),
 	],
 );
+
+export type Connection = typeof connection.$inferSelect;
+
+// *** RELATIONS ***
+export const workflowRelations = relations(workflow, ({ many }) => ({
+	nodes: many(node),
+	connections: many(connection),
+}));
+
+export const nodeRelations = relations(node, ({ one }) => ({
+	workflow: one(workflow, {
+		fields: [node.workflowId],
+		references: [workflow.id],
+	}),
+}));
+
+export const connectionRelations = relations(connection, ({ one }) => ({
+	workflow: one(workflow, {
+		fields: [connection.workflowId],
+		references: [workflow.id],
+	}),
+	fromNode: one(node, {
+		fields: [connection.fromNodeId],
+		references: [node.id],
+	}),
+}));

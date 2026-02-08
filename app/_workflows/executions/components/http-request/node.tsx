@@ -5,7 +5,7 @@ import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
 import type { NodeStatus } from "@/components/react-flow/node-status-indicator";
 import { BaseExecutionNode } from "../base-execution-node";
-import { HttpRequestDialog, HttpRequestFormType } from "./dialog";
+import { HttpRequestDialog, type HttpRequestFormValues } from "./dialog";
 
 type HttpRequestNodeData = {
 	endpoint?: string;
@@ -25,7 +25,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
 		setDialogOpen(true);
 	};
 
-	const handleSubmit = (values: HttpRequestFormType) => {
+	const handleSubmit = (values: HttpRequestFormValues) => {
 		setNodes((nodes) =>
 			nodes.map((node) => {
 				if (node.id === props.id) {
@@ -33,9 +33,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
 						...node,
 						data: {
 							...node.data,
-							endpoint: values.endpoint,
-							method: values.method,
-							body: values.body,
+							...values,
 						},
 					};
 				}
@@ -54,9 +52,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
 				open={dialogOpen}
 				onOpenChange={setDialogOpen}
 				onSubmit={handleSubmit}
-				defaultEndpoint={nodeData.endpoint}
-				defaultMethod={nodeData.method}
-				defaultBody={nodeData.body}
+				defaultValues={nodeData}
 			/>
 			<BaseExecutionNode
 				{...props}
