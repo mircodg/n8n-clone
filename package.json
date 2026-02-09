@@ -10,8 +10,7 @@
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate",
-		"inngest:dev": "inngest-cli@latest dev"
+		"db:migrate": "drizzle-kit migrate"
 	},
 	"dependencies": {
 		"@ai-sdk/openai": "^2.0.67",
