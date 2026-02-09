@@ -7,6 +7,7 @@ type HttpRequestData = {
 	endpoint?: string;
 	method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 	body?: string;
+	variableName: string;
 };
 
 export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
@@ -17,6 +18,11 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 	if (!data.endpoint) {
 		throw new NonRetriableError("HTTP Request node: No endpoint provided");
 	}
+
+	if (!data.variableName) {
+		throw new NonRetriableError("HTTP Request node: No variable name provided");
+	}
+
 	const result = await step.run("http-request", async () => {
 		// biome-ignore lint/style/noNonNullAssertion: <>
 		const endpoint = data.endpoint!;
@@ -26,6 +32,9 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 
 		if (["POST", "PUT", "PATCH"].includes(method)) {
 			options.json = data.body;
+			options.headers = {
+				"Content-Type": "application/json",
+			};
 		}
 
 		const response = await ky(endpoint, options);
@@ -34,13 +43,17 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
 			? await response.json()
 			: await response.text();
 
-		return {
-			...context,
+		const responsePayload = {
 			httpResponse: {
 				status: response.status,
 				statusText: response.statusText,
 				data: responseData,
 			},
+		};
+
+		return {
+			...context,
+			[data.variableName]: responsePayload,
 		};
 	});
 
