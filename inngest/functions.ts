@@ -3,7 +3,7 @@ import { NonRetriableError } from "inngest";
 import { getExecutor } from "@/app/_workflows/executions/lib/executor-registry";
 import { topologicalSort } from "@/app/api/inngest/utils";
 import { db } from "@/drizzle/db";
-import { type NodeType, workflow } from "@/drizzle/schema";
+import { workflow } from "@/drizzle/schema";
 import { inngest } from "./client";
 
 const executeWorkflow = inngest.createFunction(
@@ -35,9 +35,7 @@ const executeWorkflow = inngest.createFunction(
 
 		// Execute each node in order
 		for (const node of sortedNodes) {
-			const executor = getExecutor(
-				node.type as (typeof NodeType)[keyof typeof NodeType],
-			);
+			const executor = getExecutor(node.type);
 			context = await executor({
 				data: node.data as Record<string, unknown>,
 				nodeId: node.id,

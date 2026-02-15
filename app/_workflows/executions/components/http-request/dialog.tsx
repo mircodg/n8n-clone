@@ -32,6 +32,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const httpRequestSchema = z.object({
+	variableName: z
+		.string()
+		.min(1, { message: "Variable name is required" })
+		.regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, {
+			message:
+				"Variable name must start with a letter or underscore and contain only letters, numbers, and underscores",
+		}),
 	endpoint: z.url({ message: "Please enter a valid endpoint" }),
 	method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
 	body: z.string().optional(),
@@ -50,15 +57,14 @@ export const HttpRequestDialog = ({
 	open,
 	onOpenChange,
 	onSubmit,
-	defaultValues = {
-		endpoint: "",
-		method: "GET",
-		body: "",
-	},
+	defaultValues = {},
 }: HttpRequestDialogProps) => {
 	const form = useForm<z.infer<typeof httpRequestSchema>>({
 		defaultValues: {
-			...defaultValues,
+			variableName: defaultValues.variableName || "myApiCall",
+			endpoint: defaultValues.endpoint || "",
+			method: defaultValues.method || "GET",
+			body: defaultValues.body || "",
 		},
 		resolver: zodResolver(httpRequestSchema),
 	});
@@ -66,12 +72,16 @@ export const HttpRequestDialog = ({
 	useEffect(() => {
 		if (open) {
 			form.reset({
-				...defaultValues,
+				variableName: defaultValues.variableName || "myApiCall",
+				endpoint: defaultValues.endpoint || "",
+				method: defaultValues.method || "GET",
+				body: defaultValues.body || "",
 			});
 		}
 	}, [open, defaultValues, form]);
 
 	const watchMethod = form.watch("method");
+	const watchVariableName = form.watch("variableName");
 	const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
 
 	const handleSubmit = (values: z.infer<typeof httpRequestSchema>) => {
@@ -93,6 +103,27 @@ export const HttpRequestDialog = ({
 						onSubmit={form.handleSubmit(handleSubmit)}
 						className="space-y-8 mt-4"
 					>
+						<FormField
+							control={form.control}
+							name="variableName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Variable Name</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											aria-invalid={!!form.formState.errors.endpoint}
+											placeholder="myApiCall"
+										/>
+									</FormControl>
+									<FormDescription>
+										Use this variable to reference the result in other nodes:{" "}
+										{`{{${watchVariableName}.httpResponse.data}}`}
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						<FormField
 							control={form.control}
 							name="method"
